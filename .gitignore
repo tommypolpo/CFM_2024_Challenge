@@ -1,0 +1,18 @@
+
+
+small_X_train.py
+
+
+### DATA
+X_test.csv
+X_train_features.csv
+X_train_small.csv
+X_train.csv
+Xtest.parquet
+Xtrain.parquet
+y_random.csv
+y_train.csv
+
+
+
+.DS_Store
