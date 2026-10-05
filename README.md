@@ -67,3 +67,5 @@ Its interpretation depends on the action:
 ## Files
 
 * `convert.py`: convert `X_train.csv` (1.2GB) to a 70MB file called `Xtrain.parquet` that we can quickly upload to Google Drive and open it using Colab. (It can also be applied to `X_test.csv`)
+* `feature_extraction.py`. **Old version** of the feature extraction tool (that is, extract information from each 100-steps observation, e.g. average price).
+* `old_model.py`. Old version of our model. Useless now.
