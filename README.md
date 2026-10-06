@@ -69,3 +69,39 @@ Its interpretation depends on the action:
 * `convert.py`: convert `X_train.csv` (1.2GB) to a 70MB file called `Xtrain.parquet` that we can quickly upload to Google Drive and open it using Colab. (It can also be applied to `X_test.csv`)
 * `feature_extraction.py`. **Old version** of the feature extraction tool (that is, extract information from each 100-steps observation, e.g. average price).
 * `old_model.py`. Old version of our model. Useless now.
+
+## Models
+
+#### `gru_model.pt` 
+* 2 bidirectional GRU layers: input dimension 19, hidden dimension 64
+* 1 linear layer 128-->24
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` not normalized
+* `obs_id`, `order_id` dropped
+* 30 epochs training
+* Training metric: 61%
+* Validation metric 61%
+* **Public score:** 0.36392156862745095
+
+#### `gru_model2_scaled.pt` 
+* 2 bidirectional GRU layers: input dimension 19, hidden dimension 64
+* 1 linear layer 128-->24
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
+* `obs_id`, `order_id` dropped
+* 40 epochs training
+* Training metric: 75.88%
+* Validation metric 66.02%
+
+#### `inception_scaled_1.pt`
+* inception + pooling + linear
+* inception layer with kernels: top 1,3,5,1 and bottom 1,1,3. 
+* the inception layer has input `[batch, 100, 19]` and  output has dim `[batch, 16, 100]`
+* a pooling layer brings the dimension to `[batch, 16]`
+* a linear layer brings the dimension to `[batch, 24]`
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
+* `obs_id`, `order_id` dropped
+* 80 epochs training
+* Training metric: 30.13%
+* Validation metric 30.01% 
