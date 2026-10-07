@@ -96,12 +96,45 @@ Its interpretation depends on the action:
 #### `inception_scaled_1.pt`
 * inception + pooling + linear
 * inception layer with kernels: top 1,3,5,1 and bottom 1,1,3. 
-* the inception layer has input `[batch, 100, 19]` and  output has dim `[batch, 16, 100]`
-* a pooling layer brings the dimension to `[batch, 16]`
-* a linear layer brings the dimension to `[batch, 24]`
+* permutation: `[batch, 100, 19]-->[batch, 19, 100]`
+* each inception branch: `[batch, 19, 100]-->[batch, 4, 100]`
+* inception layer: `[batch, 19, 100]-->[batch, 16, 100]`
+* pooling layer: `[batch, 16, 100]-->[batch, 16]`
+* linear layer `[batch, 16]-->[batch, 24]`
 * `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
 * `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
 * `obs_id`, `order_id` dropped
 * 80 epochs training
 * Training metric: 30.13%
 * Validation metric 30.01% 
+
+#### `inception_scaled2.pt`
+Notice that here each branch does not act as a bottleneck: the output still has 16 channels.
+* inception + pooling + 2 linear layers
+* inception layer with kernels: top 1,3,5,1 and bottom 1,1,3
+* permutation: `[batch, 100, 19]-->[batch, 19, 100]`
+* each inception branch: `[batch, 19, 100]-->[batch, 16, 100]`
+* inception layer: `[batch, 19, 100]-->[batch, 64, 100]`
+* pooling layer: `[batch, 64, 100]-->[batch, 64]`
+* linear layers: `[batch, 64]-->[batch, 32]-->[batch, 24]`
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
+* `obs_id`, `order_id` dropped
+* 40 epochs training
+* Training metric: 45.9%
+* Validation metric: 45.06%
+
+#### `stacked_inception1.pt`
+* 2 stacked inception layers + pooling + 2 linear layers
+* each inception layer with kernels: top 1,3,5,1 and bottom 1,1,3
+* permutation: `[batch, 100, 19]-->[batch, 19, 100]`
+* first inception layer: `[batch, 19, 100]-->[batch, 64, 100]`
+* second inception layer: `[batch, 64, 100]-->[batch, 64, 100]`
+* pooling layer: `[batch, 64, 100]-->[batch, 64]`
+* linear layers: `[batch, 64]-->ReLu-->[batch, 32]-->[batch, 24]`
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
+* `obs_id`, `order_id` dropped
+* 100 epochs
+* Training metric: 63.75%
+* Validation metric: 61.91%
