@@ -25,7 +25,7 @@ This allows you to track the life of an order:
 * **side**: The side of the order-book on which the event took place ‘A’ (Ask, sell) or ‘B’ (Bid, buy). Buy orders always live on the bid side, while sell orders live on the ask side. 
 * **price**: The price of the order that was modified.
 The important point is that **this is not the absolute stock price**.
-To prevent the classification task from becoming trivial, the organizers subtracted the best bid price of the first event in the observation from every price.
+To prevent the classification task from becoming trivial, the organizers subtracted the best bid price of the first event in the observation from every price. Price is the limit price of the individual order being added, modified, or deleted, expressed relative to the reference price.
 * **bid**: The price of the best bid.
 * **ask**: The price of the best ask.
 * **bid_size**: The volume of orders at the best bid of the aggregated book.
@@ -51,7 +51,7 @@ Its interpretation depends on the action:
 | **U (Update)** | Positive (+50) | False | A trader increased their existing order size. |
 | **U (Update)** | Negative (-50) | True or False | A partial fill occurred (True) or size was manually lowered (False). |
 
-* Example 1:  Trader added (`A`) an ask (side A, selling) at price 0.3 of 100 units
+* Example 1:  Trader added (`A`) an ask (side A:ask, selling) at price 0.3 of 100 units
 
 | action | side | price | bid | ask  | bid_size | ask_size | trade | flux |
 |--------|------|-------|-----|------|----------|----------|-------|------|
@@ -124,7 +124,7 @@ Notice that here each branch does not act as a bottleneck: the output still has 
 * Training metric: 45.9%
 * Validation metric: 45.06%
 
-#### `stacked_inception1.pt`
+#### `stacked_inception1.pt` (normalized)
 * 2 stacked inception layers + pooling + 2 linear layers
 * each inception layer with kernels: top 1,3,5,1 and bottom 1,1,3
 * permutation: `[batch, 100, 19]-->[batch, 19, 100]`
@@ -138,3 +138,39 @@ Notice that here each branch does not act as a bottleneck: the output still has 
 * 100 epochs
 * Training metric: 63.75%
 * Validation metric: 61.91%
+
+#### `stacked_inception2_full.pt` (normalized)
+This is `stacked_inception1.pt` but trained over the normalized full training set (training+validation).
+The test set is normalized with respect to the full training set.
+* 100 epochs
+* `predictions3.csv`
+* Training metric: 60.61%
+* Score (website): 0.3606127450980392
+
+#### `BiGru_Inception1.pt` (normalized)
+* 2 stacked inception layers + bidirectional GRU branch + concatenation + 3 linear layers
+* inception layers with kernels: top 1,3,5,1 and bottom 1,1,3
+* inception branch:
+  * permutation: `[batch, 100, 19]-->[batch, 19, 100]`
+  * first inception layer: `[batch, 19, 100]-->[batch, 64, 100]`
+  * second inception layer: `[batch, 64, 100]-->[batch, 64, 100]`
+  * pooling layer: `[batch, 64, 100]-->[batch, 64]`
+* GRU branch:
+  * bidirectional GRU block: `[batch, 100, 19]-->[batch, 128]`
+  * linear layer: `[batch, 128]-->[batch, 64]`
+* concatenation: `[batch, 64] + [batch, 64]-->[batch, 128]`
+* linear layers: `[batch, 128]-->[batch, 64]-->[batch, 32]-->[batch, 24]`
+* `venue`, `action`, `side`, `trade` 1-hot encoded (13 dimensions)
+* `price`, `bid`, `ask`, `bid_size`, `ask_size`, `flux` normalized over the training set (not validation)
+* `obs_id`, `order_id` dropped
+* 61 epochs (early stopping)
+* Training metric: 82.38%
+* Validation metric: 69.43%
+
+#### `BiGru_Inception_1_full.pt` (normalized)
+This is `BiGru_Inception1.pt` but trained over the normalized full training set (training+validation).
+The test set is normalized with respect to the full training set.
+* 71 epochs
+* `predictions4.csv`
+* Training metric: 80.61%
+* Score (website): 0.41
