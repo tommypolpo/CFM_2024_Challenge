@@ -69,6 +69,14 @@ Its interpretation depends on the action:
 * `convert.py`: convert `X_train.csv` (1.2GB) to a 70MB file called `Xtrain.parquet` that we can quickly upload to Google Drive and open it using Colab. (It can also be applied to `X_test.csv`)
 * `feature_extraction.py`. **Old version** of the feature extraction tool (that is, extract information from each 100-steps observation, e.g. average price).
 * `old_model.py`. Old version of our model. Useless now.
+* `models.ipynb`. This is where we construct and select the models, running them on the training-validation split. Here we construct several model blocks: the `Bi-Gru Block` and the `Inception Block`. Then we construct models: e.g. the `Bi-Gru+Inception Model` where we run Bi-Gru and inception in parallel, then pool them and finally make a prediction.
+* `test_2x_inception.ipynb` is where we take the model comprised of 2 stacked inception modules, train them on the whole
+training set (validation+training), and finally run it on the test set to produce a prediction. Note that in this file we have to rewrite the code for the model because we have to train it again. All the data preparation is streamlined, for more details on the various steps see `models.upynb`.
+* `test_BiGru_Inception.ipynb` is where we take the two models (inception and Bi-Gru) and train them on the whole training set
+(validation+training), and finally run it on the test set to
+produce a prediction. Note that in this file we have to rewrite the code for the model because we have to train it again.
+All the data preparation is streamlined, for more details on the various steps see `models.ipynb`.
+* `features_exploration.ipynb` unfinished project of analysing extraxcted features from the data. 
 
 ## Models
 
